@@ -4,7 +4,6 @@ const getToken = req => {
 
     const tokenIvalid = authHeader.split(" ")[1]
     const token = tokenIvalid.split('"')[1]
-    console.log(token)
 
     return token
 

@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import UserRoutes from './routes/UserRoutes.mjs'
+import PetRoutes from './routes/PetRoutes.mjs'
 
 const app = express()
 
@@ -18,5 +19,6 @@ app.use(express.static('public'))
 
 // Routes
 app.use('/user', UserRoutes)
+app.use('/pets', PetRoutes)
 
 app.listen(5000, () => console.log('Estamos no back'))
