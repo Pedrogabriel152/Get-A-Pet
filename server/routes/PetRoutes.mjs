@@ -18,5 +18,8 @@ router.get('/mypets',checkToken, PetController.getAllUserPets)
 router.get('/myadoptions', checkToken, PetController.getAllUserAdoptions)
 router.get('/:id', PetController.getPetById)
 router.delete('/:id', checkToken, PetController.deletePetById)
+router.patch('/:id', checkToken, imageupload.array('images'), PetController.updatePet)
+router.patch('/schedule/:id', checkToken, PetController.schedule)
+router.patch('/conclude/:id', checkToken, PetController.concludeAdoption)
 
 export default router

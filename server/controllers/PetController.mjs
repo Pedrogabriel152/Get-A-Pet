@@ -64,6 +64,7 @@ class PetController {
             images: [],
             user: {
                 _id: user._id,
+                name: user.name,
                 image: user.image,
                 phone: user.phone
             },
@@ -150,6 +151,239 @@ class PetController {
         return res.status(200).json({
             pet
         })
+    }
+
+    static async deletePetById(req, res) {
+
+        const id = req.params.id
+
+        if(!ObjectId.isValid(id)) {
+            return res.status(422).json({
+                message: "ID iválido"
+            })
+        }
+
+        // Check if pet exists
+        const pet = await Pet.findOne( { _id: id } )
+
+        if(!pet) {
+            return res.status(404).json({
+                message: "Pet não encontrado!"
+            })
+        }
+
+        // Check if logged in user registered the pet
+        const token = getToken(req)
+        const user = await getUserByToken(token)
+
+
+        if(pet.user._id.toString() !== user._id.toString()) {
+            return res.status(422).json({
+                message: "Houve um problema em processar a sua solicitação, tente  novamente"
+            })
+        }
+
+        try {
+            
+            await Pet.findByIdAndRemove(id)
+
+            return res.status(200).json({
+                message: "Pet removido com sucesso"
+            })
+
+        } catch (error) {
+            
+            return res.status(500).json({
+                message: error
+            })
+
+        }
+
+    }
+
+    static async updatePet(req, res) {
+        
+        const id = req.params.id
+
+        const { name, age, weight, color, available } = req.body
+
+        // Images upload
+        const images = req.files
+
+        const updateData = {}
+
+        if(!ObjectId.isValid(id)) {
+            return res.status(422).json({
+                message: "ID iválido"
+            })
+        }
+
+        // Check if pet exists
+        const pet = await Pet.findOne( { _id: id } )
+
+        if(!pet) {
+            return res.status(404).json({
+                message: "Pet não encontrado!"
+            })
+        }
+
+        // Check if logged in user registered the pet
+        const token = getToken(req)
+        const user = await getUserByToken(token)
+
+
+        if(pet.user._id.toString() !== user._id.toString()) {
+            return res.status(422).json({
+                message: "Houve um problema em processar a sua solicitação, tente  novamente"
+            })
+        }
+
+        // Validations
+        if(!name) {
+            return res.status(422).json({
+                message: "O nome é obrigatório"
+            })
+        }
+
+        updateData.name = name
+
+        if(!age) {
+            return res.status(422).json({
+                message: "A idade é obrigatória"
+            })
+        }
+
+        updateData.age = age
+
+        if(!weight) {
+            return res.status(422).json({
+                message: "O peso é obrigatório"
+            })
+        }
+
+        updateData.weight = weight
+
+        if(!color) {
+            return res.status(422).json({
+                message: "A cor é obrigatória"
+            })
+        }
+
+        updateData.color = color
+
+        if(images.length == 0) {
+            return res.status(422).json({
+                message: "A imagem é obrigatória"
+            })
+        }
+
+        updateData.images = []
+
+        images.map(image => {
+            updateData.images.push(image.filename)
+        })
+        
+        await Pet.findByIdAndUpdate(id, updateData)
+
+        return res.status(200).json({
+            message: "Pet atualizado com sucesso"
+        })
+
+    }
+
+    static async schedule(req, res) {
+
+        const id = req.params.id
+        
+        if(!ObjectId.isValid(id)) {
+            return res.status(422).json({
+                message: "ID iválido"
+            })
+        }
+
+        // Check if pet exists
+        const pet = await Pet.findOne( { _id: id } )
+
+        if(!pet) {
+            return res.status(404).json({
+                message: "Pet não encontrado!"
+            })
+        } 
+
+        // Check if user registered the pet
+        const token = getToken(req)
+        const user = await getUserByToken(token)
+
+
+        if(pet.user._id.equals(user._id)) {
+            return res.status(422).json({
+                message: "Você não pode agendar uma visita para o seu próprio Pet"
+            })
+        }
+
+        // Check if user has already scheduled a visit
+
+        if(pet.adopter) {
+            if(pet.adopter._id.equals(user._id)) {
+                return res.status(422).json({
+                    message: "Você já agendou uma visita a este Pet"
+                })
+            }
+        }
+
+        // ADD user to pet
+        pet.adopter = {
+            _id: user._id,
+            name: user.name,
+            image: user.image 
+        }
+
+        await Pet.findByIdAndUpdate(id, pet)
+
+        return res.status(200).json({
+            message: `A visita foi agendada com sucesso, entre em contato com ${pet.user.name} pelo telefone ${pet.user.phone}`
+        })
+        
+    }
+
+    static async concludeAdoption(req, res) {
+
+        const id = req.params.id
+
+        if(!ObjectId.isValid(id)) {
+            return res.status(422).json({
+                message: "ID iválido"
+            })
+        }
+
+        // Check if pet exists
+        const pet = await Pet.findOne( { _id: id } )
+
+        if(!pet) {
+            return res.status(404).json({
+                message: "Pet não encontrado!"
+            })
+        }
+
+        // Check if logged in user registered the pet
+        const token = getToken(req)
+        const user = await getUserByToken(token)
+
+
+        if(pet.user._id.toString() !== user._id.toString()) {
+            return res.status(422).json({
+                message: "Houve um problema em processar a sua solicitação, tente  novamente"
+            })
+        }
+
+        pet.available = false 
+
+        await Pet.findByIdAndUpdate(id, pet)
+
+        res.status(200).json({
+            message: 'Parabéns! o ciclo de adoção foi finalizado com sucesso'
+        })
+
     }
 
 }
