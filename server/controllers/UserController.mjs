@@ -1,6 +1,6 @@
 import User from '../models/User.mjs'
 import bcrypt from "bcrypt"
-import { verify } from 'jsonwebtoken'
+import jwt  from 'jsonwebtoken'
 
 // helpers
 import createUserToken from '../helpers/create-user-token.mjs'
@@ -144,8 +144,8 @@ class UserController {
         if(req.headers.authorization){
 
             const token = getToken(req)
-            const decoded = verify(token, 'nossosecret')
-            console.log(decoded.id)
+            console.log(token)
+            const decoded = jwt.verify(token, 'nossosecret')
 
             currentUser = await User.findById(decoded.id)
             console.log(currentUser.password)
