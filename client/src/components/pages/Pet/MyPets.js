@@ -38,7 +38,7 @@ function MyPets() {
             }
         })
         .then(res => {
-            const updatePets = pets.filter(pet => pet._id != id)
+            const updatePets = pets.filter(pet => pet._id !== id)
             setPets(updatePets)
             return res.data
         })
