@@ -128,7 +128,7 @@ function Profile() {
                     handleOnchange={handleOnchange}
                 />
                 <Input
-                    text="Senha"
+                    text="Confirme a Senha"
                     type="password"
                     name="confirmpassword"
                     placeholder="Confirme sua senha"
