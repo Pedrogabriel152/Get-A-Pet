@@ -50,6 +50,23 @@ function MyPets() {
         setFlashMessage(data.message, msgType)
     }
 
+    async function concludeAdoption(id) {
+        let msgType = 'success'
+
+        const data = await api.patch(`/pets/conclude/${id}`, {
+            headers: {
+                Authorization: `Bearer ${JSON.parse(token)}`
+            }
+        })
+        .then(res => res.data)
+        .catch(err => {
+            msgType = 'error'
+            return err.response.data
+        })
+        
+        setFlashMessage(data.message, msgType)
+    }
+
     return(
         <section>
             <div className={styles.petlist_header}>
@@ -72,7 +89,7 @@ function MyPets() {
                                 ? (
                                     <>
                                         {pet.adopter && (
-                                            <button className={styles.concludebtn}>Concluir adoção</button>
+                                            <button className={styles.concludebtn} onClick={() => concludeAdoption(pet._id)}>Concluir adoção</button>
                                         )}
                                         <Link to={`/pet/edit/${pet._id}`}>Editar</Link>
                                         <button onClick={() => removePet(pet._id)}>Excluir</button>

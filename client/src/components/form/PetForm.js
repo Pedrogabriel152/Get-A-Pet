@@ -11,7 +11,7 @@ function PetForm({handleSubmit,petData, btnText}) {
 
     const [pet, setPet] = useState(petData || {})
     const [preview, setPreview] = useState([])
-    const colors = ['Braco',"Preto","Caramelo","Amarelo","Pintado"]
+    const colors = ['Branco',"Preto","Caramelo","Amarelo","Pintado"]
 
     function onFileChange(e){
         setPreview(Array.from(e.target.files))

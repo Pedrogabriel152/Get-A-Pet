@@ -271,17 +271,10 @@ class PetController {
 
         updateData.color = color
 
-        if(images.length == 0) {
-            return res.status(422).json({
-                message: "A imagem é obrigatória"
-            })
+        if(images.length > 0) {
+            updateData.images = []
+            images.map(image => updateData.images.push(image.filename))
         }
-
-        updateData.images = []
-
-        images.map(image => {
-            updateData.images.push(image.filename)
-        })
         
         await Pet.findByIdAndUpdate(id, updateData)
 
